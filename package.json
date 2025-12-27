@@ -1,10 +1,9 @@
 {
     "name": "@cloud-canal/connect",
     "version": "4.0.0",
+    "type": "module",
     "description": "A low-code framework for building web applications with state management and event-driven architecture.",
-    "main": "dist/cc.umd.js",
-    "module": "dist/cc.esm.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/connect.js",
     "files": [
         "dist"
     ],
@@ -22,9 +21,10 @@
     ],
     "license": "MIT",
     "devDependencies": {
+        "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^11.1.6",
         "rollup": "^4.9.0",
-        "rollup-plugin-dts": "^6.1.0",
+        "tslib": "^2.8.1",
         "typescript": "^5.3.0",
         "vitest": "^1.0.0"
     }

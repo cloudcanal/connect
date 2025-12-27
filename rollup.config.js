@@ -1,34 +1,35 @@
 import typescript from '@rollup/plugin-typescript';
-import dts from 'rollup-plugin-dts';
+import terser from '@rollup/plugin-terser';
+
+const config = {
+  input: 'src/index.ts',
+  plugins: [
+    typescript({ tsconfig: './tsconfig.json', declaration: false, declarationDir: undefined })
+  ]
+};
 
 export default [
-  // Main bundle
+  // Unminified
   {
-    input: 'src/index.ts',
-    output: [
-      {
-        file: 'dist/cc.umd.js',
-        format: 'umd',
-        name: 'cc',
-        sourcemap: true
-      },
-      {
-        file: 'dist/cc.esm.js',
-        format: 'es',
-        sourcemap: true
-      }
-    ],
-    plugins: [
-      typescript({ tsconfig: './tsconfig.json' })
-    ]
-  },
-  // Type declarations
-  {
-    input: 'src/index.ts',
+    ...config,
     output: {
-      file: 'dist/index.d.ts',
-      format: 'es'
-    },
-    plugins: [dts()]
+      file: 'dist/connect.js',
+      format: 'umd',
+      name: 'cc',
+      sourcemap: true,
+      exports: 'named'
+    }
+  },
+  // Minified
+  {
+    ...config,
+    plugins: [...config.plugins, terser()],
+    output: {
+      file: 'dist/connect.min.js',
+      format: 'umd',
+      name: 'cc',
+      sourcemap: true,
+      exports: 'named'
+    }
   }
 ];
