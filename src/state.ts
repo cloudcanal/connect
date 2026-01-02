@@ -81,7 +81,7 @@ export const state = {
     const mem = memoryStore.get(key);
     if (mem) {
       if (isExpired(mem)) {
-        this.delete(key);
+        this.remove(key);
         return undefined;
       }
       return mem.value as T;
@@ -139,10 +139,10 @@ export const state = {
   },
 
   /**
-   * Delete a key from state
+   * Remove a key from state
    * Emits 'state:{key}' event with { value: undefined, oldValue }
    */
-  delete(key: string): void {
+  remove(key: string): void {
     const oldValue = this.get(key);
     if (oldValue === undefined) return;
 
@@ -159,6 +159,40 @@ export const state = {
 
     // Emit state change event
     events.emit(`state:${key}`, { value: undefined, oldValue });
+  },
+
+  /**
+   * List all state keys and their storage locations
+   * Useful for debugging
+   */
+  list(): Array<{ key: string; storage: 'memory' | 'session' | 'local' }> {
+    const result: Array<{ key: string; storage: 'memory' | 'session' | 'local' }> = [];
+
+    // List memory keys
+    for (const [key, stored] of memoryStore) {
+      if (!isExpired(stored)) {
+        result.push({ key, storage: 'memory' });
+      }
+    }
+
+    // List persistent storage keys
+    for (const persist of ['session', 'local'] as const) {
+      const storage = getStorage(persist);
+      if (!storage) continue;
+
+      for (let i = 0; i < storage.length; i++) {
+        const rawKey = storage.key(i);
+        if (rawKey?.startsWith(STORAGE_PREFIX)) {
+          const key = rawKey.slice(STORAGE_PREFIX.length);
+          const stored = getFromStorage(key, storage);
+          if (stored && !isExpired(stored)) {
+            result.push({ key, storage: persist });
+          }
+        }
+      }
+    }
+
+    return result;
   },
 
   /**
