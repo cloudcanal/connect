@@ -201,18 +201,21 @@ export const db = {
   // ==================== AUTH ====================
 
   /**
-   * Sign up a new user
+   * Sign up a new user and automatically log them in
    */
   async signup(email: string, password: string, data: Record<string, unknown> = {}): Promise<DbUser> {
     const client = getClient();
-    const user = await client.collection('users').create<DbUser>({
+    // Create the user account
+    await client.collection('users').create<DbUser>({
       email,
       password,
       passwordConfirm: password,
       ...data
     });
-    events.emit('auth:signup', { user });
-    return user;
+    // Log them in automatically
+    const auth = await client.collection('users').authWithPassword<DbUser>(email, password);
+    events.emit('auth:signup', { user: auth.record });
+    return auth.record;
   },
 
   /**
